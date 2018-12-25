@@ -2,6 +2,7 @@ import requests
 from lxml import etree
 
 
+
 def parse_long_string_to_dict(bigstr):
     """get the text of Query String Parameters on Chrome
     transform it to a python dict object"""
@@ -57,7 +58,7 @@ class ProxiesPool:
 
     global globalHeaders
 
-    def __init__(self, pageNumber=5):
+    def __init__(self, pageNumber=1):
 
         self.realIp = '1.202.251.26'
         self.camouflage = ''
@@ -71,8 +72,14 @@ class ProxiesPool:
 
     def proxy_is_valid(self, proxy):
 
-        response = requests.get(url=self.checkStationUrl, proxies=proxy)
-        print(response.text)
+        try:
+            response = requests.get(url=self.checkStationUrl, proxies=proxy, timeout=3)
+            print(response.text)
+        except (requests.exceptions.ProxyError,
+                requests.exceptions.ChunkedEncodingError,
+                requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectTimeout):
+            return False
         if '有道' in response.text:
             return False
         parsedOrigin = response.json().get('origin')
@@ -108,15 +115,13 @@ if __name__ == '__main__':
     proxiesPool.pull_proxies()
     print(len(proxiesPool.proxiesContainer.container))
     ps = proxiesPool.proxiesContainer.container
+    print(ps)
     f = open('some_proxies', 'a')
     for i in ps:
         if proxiesPool.proxy_is_valid(i):
-            proxiesPool.camouflage = i
             print(i)
             f.write(str(proxiesPool.get_proxy()))
             f.write('\n')
     aproxy = proxiesPool.get_proxy()
     print(proxiesPool.proxy_is_valid(aproxy))
-    # print(aproxy)
-    # print(proxiesPool.proxy_is_valid({'https': 'https://60.179.239.252:8010'}))
 
