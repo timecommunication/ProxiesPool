@@ -1,3 +1,4 @@
+import json
 import requests
 from lxml import etree
 
@@ -82,7 +83,10 @@ class ProxiesPool:
             return False
         if '有道' in response.text:
             return False
-        parsedOrigin = response.json().get('origin')
+        try:
+            parsedOrigin = response.json().get('origin')
+        except json.decoder.JSONDecodeError:
+            return False
         if parsedOrigin == self.realIp:
             return False
         return True
@@ -106,6 +110,7 @@ class ProxiesPool:
 
         if self.thresholdFloor > self.proxiesContainer.get_proxies_number():
             self.pull_proxies()
+            self.pageNumber += 1
         for i in self.proxiesContainer.container:
             if not self.proxy_is_valid(i):
                 self.proxiesContainer.container.remove(i)
