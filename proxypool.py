@@ -104,8 +104,7 @@ class ProxiesPool:
 
     def threshold_based_update(self):
 
-        if self.thresholdFloor < self.proxiesContainer.get_proxies_number() or \
-           self.proxiesContainer.get_proxies_number() < self.thresholdCelling:
+        if self.thresholdFloor > self.proxiesContainer.get_proxies_number():
             self.pull_proxies()
 
 
